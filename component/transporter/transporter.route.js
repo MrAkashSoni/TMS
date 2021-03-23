@@ -1,10 +1,12 @@
 const router = require('express').Router();
-const { verifyAdmin } = require('../../common_functions/verifyToken');
+const { verify } = require('../../common_functions/verifyToken');
 
 const {
-    addTransporter,
+    addUpdateTransporter,
+    activeTransporterToggle,
 } = require('./transporter.controller');
 
-router.get('/addTransporter', verifyAdmin, addTransporter);
+router.post('/addUpdateTransporter', verify, addUpdateTransporter);
+router.patch('/:id/activeTransporterToggle', verify, activeTransporterToggle);
 
 module.exports = router;

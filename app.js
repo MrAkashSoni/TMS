@@ -38,17 +38,18 @@ app.use(bodyParser.raw({ type: 'application/vnd.custom-type' }));
 app.use(bodyParser.text({ type: 'text/html' }));
 app.use(bodyParser.text({ type: 'text/plain' }));
 
-app.use((err, req, res, next) => {
-    handleError(err, res);
-});
+app.use('/api/auth', authRouter);
+app.use('/api/vehicle', vehicleRouter);
+app.use('/api/transporter', transporterRouter);
 
 app.get('/error', () => {
     throw new ErrorHandler(500, 'Internal server error');
 });
 
-app.use('/api/auth', authRouter);
-app.use('/api/vehicle', vehicleRouter);
-app.use('/api/transporter', transporterRouter);
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+    handleError(err, res);
+});
 
 app.listen(process.env.PORT, () => {
     console.log(`Server connected to ${process.env.PORT} port.`);
