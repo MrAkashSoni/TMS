@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const authRouter = require('./component/auth/auth.route');
 const vehicleRouter = require('./component/vehicle/vehicle.route');
 const transporterRouter = require('./component/transporter/transporter.route');
+const branchRouter = require('./component/branch/branch.route');
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use(bodyParser.text({ type: 'text/plain' }));
 app.use('/api/auth', authRouter);
 app.use('/api/vehicle', vehicleRouter);
 app.use('/api/transporter', transporterRouter);
+app.use('/api/branch', branchRouter);
 
 app.get('/error', () => {
     throw new ErrorHandler(500, 'Internal server error');

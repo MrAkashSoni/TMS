@@ -2,27 +2,26 @@ const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const transporterSchema = new Schema({
-    first_name: { type: String },
-    last_name: { type: String },
+const branchSchema = new Schema({
+    transporter_id: { type: String },
     primary_mobile_number: { type: Number },
     other_mobile_number: { type: Array },
     whatsapp_mobile_number: { type: Array },
-    email: { type: String },
-    living_address: { type: Object },
-    name_of_transportation: { type: String },
+    GST_no: { type: String },
     visiting_card: { type: String },
-    own_trucks_by: { type: Boolean, default: false },
+    address: { type: Object },
+    services: { type: Array },
+    type_of_material: { type: Array },
     bank_detail: { type: Array },
-    total_deal_with_trasporter: { type: Number, default: 0 },
+    total_deal_with_branch: { type: Number, default: 0 },
     likeness_to_work_with: { type: Number }, // 0-5 - 5 max 0 min
     is_active: { type: Boolean, default: true },
 }, {
     timestamps: true,
 });
 
-const transporterModel = mongoose.model('transporterModel', transporterSchema);
-module.exports = transporterModel;
+const branchModel = mongoose.model('branchModel', branchSchema);
+module.exports = branchModel;
 
 /* address object should contain
     transporter_address_1: { type: String },
