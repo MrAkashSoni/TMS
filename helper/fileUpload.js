@@ -1,5 +1,6 @@
 const multer = require('multer');
 const path = require('path');
+const cryptoRandomString = require('crypto-random-string');
 
 const destination = `${path.dirname(require.main.filename)}/public/uploads`;
 
@@ -10,9 +11,9 @@ const storage = multer.diskStorage({
     filename(req, file, cb) {
         if (!file.originalname.includes('.')) {
             const ext = file.mimetype.split('/')[1];
-            cb(null, `${Date.now()}_${file.originalname}.${ext}`);
+            cb(null, `${Date.now()}_${cryptoRandomString({ length: 10, type: 'url-safe' })}.${ext}`);
         } else {
-            cb(null, `${Date.now()}_${file.originalname}`);
+            cb(null, `${Date.now()}_${cryptoRandomString({ length: 10, type: 'url-safe' })}`);
         }
     },
 });

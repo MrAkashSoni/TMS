@@ -37,7 +37,7 @@ async function addUpdateTransporter(req, res, next) {
             },
         };
         if (!foundTransporter) {
-            transporter = await new TransporterModel(transporterDetail).save().lean();
+            transporter = await new TransporterModel(transporterDetail).save();
 
             res.status(200).json({ sucess: true, message: 'Transporter Created.', data: transporter });
         } else if (foundTransporter.is_active) {

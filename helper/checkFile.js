@@ -2,11 +2,27 @@ const fs = require('fs');
 const { ErrorHandler } = require('./error');
 
 exports.getfilePath = (file) => {
-    const rootDir = file.destination.split('/')[1];
-    const parentDir = file.destination.split('/')[2];
-    const dir = file.destination.split('/')[3];
-    const fileName = `${rootDir}/${parentDir}/${dir}/${file.filename}`;
-    return fileName;
+    let dir;
+    let parentDir;
+    let rootDir;
+
+    if (file.length === undefined) {
+        rootDir = file.destination.split('/')[1];
+        parentDir = file.destination.split('/')[2];
+        dir = file.destination.split('/')[3];
+        const fileName = `${rootDir}/${parentDir}/${dir}/${file.filename}`;
+        return fileName;
+    } else {
+        const fileName = [];
+        for (let i = 0; i < file.length; i++) {
+            const element = file[i];
+            rootDir = element.destination.split('/')[1];
+            parentDir = element.destination.split('/')[2];
+            dir = element.destination.split('/')[3];
+            fileName.push(`${rootDir}/${parentDir}/${dir}/${element.filename}`);
+        }
+        return fileName;
+    }
 };
 
 exports.checkFile = (req, fileName) => {
@@ -19,8 +35,10 @@ exports.checkFile = (req, fileName) => {
     }
 };
 
-exports.removeExisting = (filePath) => {
-    if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-    }
+exports.removeExisting = (old_images) => {
+    old_images.forEach((filePath) => {
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+    });
 };

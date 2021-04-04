@@ -9,6 +9,8 @@ const branchSchema = new Schema({
     whatsapp_mobile_number: { type: Array },
     GST_no: { type: String },
     visiting_card: { type: String },
+    panCard: { type: String },
+    aadharCard: { type: Array },
     address: { type: Object },
     services: { type: Array },
     type_of_material: { type: Array },

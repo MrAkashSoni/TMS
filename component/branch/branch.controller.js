@@ -24,11 +24,19 @@ async function addUpdateBranch(req, res, next) {
             city,
             state,
             zip,
+            old_images,
         } = req.body;
 
-        const file = req.file;
-        const visiting_card = await getfilePath(file);
+        const files = req.files;
+        const visiting_card = await getfilePath(files.visitingCard[0]);
+        const panCard = await getfilePath(files.panCard[0]);
+        const aadharCard = await getfilePath(files.aadharCard);
+
+        console.log('aadharCard', aadharCard);
+
         checkFile(req, visiting_card);
+        checkFile(req, panCard);
+        checkFile(req, aadharCard);
 
         let branch;
 
@@ -44,6 +52,8 @@ async function addUpdateBranch(req, res, next) {
             services,
             type_of_material,
             visiting_card,
+            panCard,
+            aadharCard,
             address: {
                 address_1,
                 address_2,
@@ -67,7 +77,7 @@ async function addUpdateBranch(req, res, next) {
         } else if (foundBranch.is_active) {
             branch = await BranchModel.findByIdAndUpdate({ _id: foundBranch._id }, { $set: branchDetail }, { new: true }).lean();
 
-            if (file) removeExisting(foundBranch.visiting_card);
+            if (old_images) removeExisting(old_images);
 
             res.status(200).json({ sucess: true, message: 'Transporter Details Updated.', data: branch });
         } else {
