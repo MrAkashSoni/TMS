@@ -11,9 +11,7 @@ const transporterSchema = new Schema({
     email: { type: String },
     living_address: { type: Object },
     name_of_transportation: { type: String },
-    visiting_card: { type: String },
     own_trucks_by: { type: Boolean, default: false },
-    bank_detail: { type: Array },
     total_deal_with_trasporter: { type: Number, default: 0 },
     likeness_to_work_with: { type: Number }, // 0-5 - 5 max 0 min
     is_active: { type: Boolean, default: true },

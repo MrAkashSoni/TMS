@@ -16,6 +16,7 @@ async function addUpdateTransporter(req, res, next) {
             city,
             state,
             zip,
+            own_trucks_by,
         } = req.body;
 
         let transporter;
@@ -35,6 +36,7 @@ async function addUpdateTransporter(req, res, next) {
                 state,
                 zip,
             },
+            own_trucks_by,
         };
         if (!foundTransporter) {
             transporter = await new TransporterModel(transporterDetail).save();

@@ -9,19 +9,15 @@ const storage = multer.diskStorage({
         cb(null, `${destination}/${file.fieldname}`);
     },
     filename(req, file, cb) {
-        if (!file.originalname.includes('.')) {
-            const ext = file.mimetype.split('/')[1];
-            cb(null, `${Date.now()}_${cryptoRandomString({ length: 10, type: 'url-safe' })}.${ext}`);
-        } else {
-            cb(null, `${Date.now()}_${cryptoRandomString({ length: 10, type: 'url-safe' })}`);
-        }
+        const ext = file.mimetype.split('/')[1];
+        cb(null, `${Date.now()}_${cryptoRandomString({ length: 10, type: 'url-safe' })}.${ext}`);
     },
 });
 
 const fileFilter = function (req, file, cb) {
     /* Accept images and docs only */
-    if (!file.mimetype.match(/\/(image|jpg|JPG|jpeg|JPEG|png|PNG|heic|HEIC|mp4|avi|pdf|PDF|doc|DOC|docx|DOCX|xls|XLS|csv|CSV)$/)) {
-        req.fileValidationError = 'Only (image|jpg|JPG|jpeg|JPEG|png|PNG|heic|HEIC|mp4|avi|pdf|PDF|doc|DOC|docx|DOCX|xls|XLS|csv|CSV) files are allowed!';
+    if (!file.mimetype.match(/\/(image|jpg|JPG|jpeg|JPEG|png|PNG|heic|HEIC)$/)) {
+        req.fileValidationError = 'Only (image|jpg|JPG|jpeg|JPEG|png|PNG|heic|HEIC) files are allowed!';
     }
     cb(null, true);
 };
