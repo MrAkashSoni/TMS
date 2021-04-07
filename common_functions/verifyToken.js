@@ -7,7 +7,7 @@ exports.verify = async function (req, res, next) {
     try {
         if (token) {
             const verified = jwt.verify(token, process.env.TOKEN_SECRET);
-            if (!verified.admin) {
+            if (verified.role !== 0) {
                 req.user = verified;
                 next();
             } else {
@@ -26,7 +26,7 @@ exports.verifyAdmin = async function (req, res, next) {
     try {
         if (token) {
             const verified = jwt.verify(token, process.env.TOKEN_SECRET);
-            if (verified.admin) {
+            if (verified.role === 0) {
                 req.user = verified;
                 next();
             } else {

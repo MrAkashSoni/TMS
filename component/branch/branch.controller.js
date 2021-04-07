@@ -2,6 +2,7 @@ const { ErrorHandler } = require('../../helper/error');
 const { getfilePath, checkFile, removeExisting } = require('../../helper/checkFile');
 
 const BranchModel = require('./branch.model');
+const UserModel = require('../user/user.model');
 
 async function addUpdateBranch(req, res, next) {
     try {
@@ -32,56 +33,65 @@ async function addUpdateBranch(req, res, next) {
         const panCard = await getfilePath(files.panCard[0]);
         const aadharCard = await getfilePath(files.aadharCard);
 
-        console.log('aadharCard', aadharCard);
+        let is_transporter_active = true;
 
-        checkFile(req, visiting_card);
-        checkFile(req, panCard);
-        checkFile(req, aadharCard);
+        if (transporter_id) {
+            const transporter = await UserModel.findById({ _id: transporter_id }).lean();
+            is_transporter_active = transporter.is_active;
+        }
 
-        let branch;
+        if (is_transporter_active) {
+            checkFile(req, visiting_card);
+            checkFile(req, panCard);
+            checkFile(req, aadharCard);
 
-        const foundBranch = await BranchModel.findOne({ primary_mobile_number }).lean();
+            let branch;
 
-        const branchDetail = {
-            transporter_id,
-            primary_mobile_number,
-            other_mobile_number,
-            whatsapp_mobile_number,
-            email,
-            GST_no,
-            services,
-            type_of_material,
-            visiting_card,
-            panCard,
-            aadharCard,
-            address: {
-                address_1,
-                address_2,
-                city,
-                state,
-                zip,
-            },
-            bank_detail: {
-                bank_name,
-                bank_account_number,
-                acc_holder_name,
-                bank_branch,
-                IFSC_code,
-            },
-        };
+            const foundBranch = await BranchModel.findOne({ primary_mobile_number }).lean();
 
-        if (!foundBranch) {
-            branch = await new BranchModel(branchDetail).save();
+            const branchDetail = {
+                transporter_id,
+                primary_mobile_number,
+                other_mobile_number,
+                whatsapp_mobile_number,
+                email,
+                GST_no,
+                services,
+                type_of_material,
+                visiting_card,
+                panCard,
+                aadharCard,
+                address: {
+                    address_1,
+                    address_2,
+                    city,
+                    state,
+                    zip,
+                },
+                bank_detail: {
+                    bank_name,
+                    bank_account_number,
+                    acc_holder_name,
+                    bank_branch,
+                    IFSC_code,
+                },
+            };
 
-            res.status(200).json({ sucess: true, message: 'Branch Created.', data: branch });
-        } else if (foundBranch.is_active) {
-            branch = await BranchModel.findByIdAndUpdate({ _id: foundBranch._id }, { $set: branchDetail }, { new: true }).lean();
+            if (!foundBranch) {
+                branch = await new BranchModel(branchDetail).save();
 
-            if (old_images) removeExisting(old_images);
+                res.status(200).json({ sucess: true, message: 'Branch Created.', data: branch });
+            } else if (foundBranch.is_active) {
+                branch = await BranchModel.findByIdAndUpdate({ _id: foundBranch._id }, { $set: branchDetail }, { new: true }).lean();
 
-            res.status(200).json({ sucess: true, message: 'Transporter Details Updated.', data: branch });
+                if (old_images) removeExisting(old_images);
+
+                res.status(200).json({ sucess: true, message: 'Branch Details Updated.', data: branch });
+            } else {
+                throw new ErrorHandler(401, 'Branch is not active.');
+            }
         } else {
-            throw new ErrorHandler(401, 'Transporter is not active.');
+            throw new ErrorHandler(401, 'Tranporter of this branch is not active.');
         }
     } catch (err) {
         next(err);

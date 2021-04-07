@@ -3,29 +3,27 @@ const jwt = require('jsonwebtoken');
 const { ErrorHandler } = require('../../helper/error');
 const logger = require('../../helper/logger');
 
-const AuthModel = require('./auth.model');
+const UserModel = require('../user/user.model');
 
 async function login(req, res, next) {
     try {
         const { email, password } = req.body;
-        const userDetail = await AuthModel.findOne({ email });
+        const userDetail = await UserModel.findOne({ email });
         if (userDetail) {
-            const bcyptedPassword = userDetail.password;
+            if (userDetail.is_user_verified) {
+                const bcyptedPassword = userDetail.password;
 
-            const compare = await bcrypt.compare(password, bcyptedPassword);
+                const compare = await bcrypt.compare(password, bcyptedPassword);
 
-            if (compare) {
-                let is_admin = false;
+                if (compare) {
+                    const token = jwt.sign({ _id: userDetail.email, role: userDetail.role }, process.env.TOKEN_SECRET);
 
-                if (userDetail.role == 'admin') {
-                    is_admin = true;
+                    res.status(200).json({ success: true, data: { userDetail, token } });
+                } else {
+                    throw new ErrorHandler(401, 'Invalid Credentials');
                 }
-
-                const token = jwt.sign({ _id: userDetail.email, admin: is_admin }, process.env.TOKEN_SECRET);
-
-                res.status(200).json({ success: true, data: { userDetail, token } });
             } else {
-                throw new ErrorHandler(401, 'Invalid Credentials');
+                res.status(209).json({ sucess: true, message: 'User is not verified' });
             }
         } else {
             throw new ErrorHandler(404, 'User not found');
@@ -37,20 +35,66 @@ async function login(req, res, next) {
     }
 }
 
-async function registerUser(req, res, next) {
+async function addUpdateUser(req, res, next) {
     try {
-        const { email, password, role } = req.body;
-        const saltRounds = 10;
-        const bcyptedPassword = await bcrypt.hash(password, saltRounds);
-
-        const creatUser = new AuthModel({
+        const {
+            first_name,
+            last_name,
+            primary_mobile_number,
+            other_mobile_number,
+            whatsapp_mobile_number,
             email,
-            password: bcyptedPassword,
+            address_1,
+            address_2,
+            city,
+            state,
+            zip,
+            own_trucks_by,
+            name_of_service,
             role,
-        });
-        const newUser = await creatUser.save();
+            password,
+        } = req.body;
 
-        res.status(200).json({ success: true, message: 'User Created.', data: newUser });
+        let user;
+        let bcyptedPassword;
+
+        const foundUser = await UserModel.findOne({ primary_mobile_number }).lean();
+
+        if (password) {
+            const saltRounds = 10;
+            bcyptedPassword = await bcrypt.hash(password, saltRounds);
+        }
+
+        const userDetail = {
+            first_name,
+            last_name,
+            primary_mobile_number,
+            other_mobile_number,
+            whatsapp_mobile_number,
+            email,
+            living_address: {
+                address_1,
+                address_2,
+                city,
+                state,
+                zip,
+            },
+            own_trucks_by,
+            name_of_service,
+            role,
+            bcyptedPassword,
+        };
+        if (!foundUser) {
+            user = await new UserModel(userDetail).save();
+
+            res.status(200).json({ sucess: true, message: 'User Created.', data: user });
+        } else if (foundUser.is_active) {
+            user = await UserModel.findByIdAndUpdate({ _id: foundUser._id }, { $set: userDetail }, { new: true }).lean();
+
+            res.status(200).json({ sucess: true, message: 'User Details Updated.', data: user });
+        } else {
+            throw new ErrorHandler(401, 'User is not active.');
+        }
     } catch (err) {
         next(err);
     }
@@ -58,5 +102,6 @@ async function registerUser(req, res, next) {
 
 module.exports = {
     login,
-    registerUser,
+    // registerUser,
+    addUpdateUser,
 };

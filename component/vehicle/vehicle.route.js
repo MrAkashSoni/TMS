@@ -1,8 +1,11 @@
 const router = require('express').Router();
 const { verify } = require('../../common_functions/verifyToken');
-const { test } = require('./vehicle.controller');
+const fileUpload = require('../../helper/fileUpload');
 
-router.get('/test', test);
-router.get('/testToken', verify, test);
+const {
+    addUpdateVehicle,
+} = require('./vehicle.controller');
+
+router.get('/addUpdateVehicle', verify, fileUpload.single('rc_card'), addUpdateVehicle);
 
 module.exports = router;
